@@ -1,0 +1,40 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# IDE files
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model weights
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+
+# Local history and cache
+.cache/
+history/
