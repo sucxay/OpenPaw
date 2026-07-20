@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ai = "main:main"
+paw = "main:main"
 
 [build-system]
 requires = ["setuptools>=68"]
