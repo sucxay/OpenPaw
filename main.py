@@ -12,7 +12,7 @@ from typing import Optional
 
 import typer
 
-from commands import config_cmd, history_cmd, models_cmd
+from commands import config_cmd, explain_cmd, history_cmd, models_cmd
 from commands.chat import run_chat
 from config.config_manager import get_config_manager
 from history.history_manager import HistoryManager
@@ -28,7 +28,7 @@ app = typer.Typer(
 PHASE_2_NOTICE = (
     "'{cmd}' is planned for a later phase of this project "
     "(project analysis / codegen / agent capabilities). "
-    "Phase 1 currently covers: chat, config, models, switch-model, history, clear-history."
+    "Currently implemented: chat, explain, config, models, switch-model, history, clear-history."
 )
 
 
@@ -48,12 +48,14 @@ def chat(
 
 
 @app.command()
+
 def explain(
     file: Path = typer.Argument(..., help="File to explain."),
     beginner: bool = typer.Option(False, "--beginner", help="Give a beginner-friendly explanation."),
 ) -> None:
     """Explain the code in a given file."""
-    _not_yet_implemented("ai explain")
+    config_manager = get_config_manager()
+    explain_cmd.run_explain(config_manager, file, beginner=beginner)
 
 
 @app.command()

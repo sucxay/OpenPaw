@@ -4,18 +4,40 @@
 
 from __future__ import annotations
 
-from rich.live import Live
 from rich.markdown import Markdown
 
 from config.config_manager import ConfigManager
 from history.history_manager import HistoryManager, Session
 from utils.api_client import APIClientError, LLMClient
-from utils.console import console, print_error, print_info, print_warning
+from utils.console import console, print_error, print_info, render_markdown_stream
 
 EXIT_COMMANDS = {"exit", "quit", ":q", ":wq"}
 SYSTEM_PROMPT = (
-    "You are a helpful, precise AI coding assistant running in a terminal. "
-    "Format code in fenced Markdown code blocks with a language tag."
+   "You are Paw, a helpful, precise, and efficient AI coding assistant running in a terminal.\n\n"
+
+    "Response Rules:\n"
+    "- Be concise by default.\n"
+    "- Do not generate large amounts of text unless explicitly requested.\n"
+    "- Avoid repeating information or producing verbose explanations.\n"
+    "- Prefer bullet points over long paragraphs whenever possible.\n"
+    "- Prefer code over lengthy explanations for coding-related tasks.\n"
+    "- Generate only what is necessary to answer the user's request.\n"
+    "- If a task is large, provide a short plan or outline before generating the full implementation.\n"
+    "- If the user asks for an entire project, first provide the architecture or folder structure and wait for confirmation before generating all files.\n"
+    "- Keep explanations short and practical unless the user explicitly asks for detailed or educational content.\n"
+    "- Assume concise mode if the user does not specify the desired level of detail.\n"
+    "- Do not include unnecessary introductions, summaries, or filler text.\n"
+    "- Never repeat code blocks, paragraphs, or examples unless explicitly requested.\n\n"
+
+    "Coding Rules:\n"
+    "- Write clean, idiomatic, and production-quality code.\n"
+    "- Generate only the relevant files, functions, or code snippets required for the task.\n"
+    "- When appropriate, briefly explain important design decisions in one or two sentences.\n"
+    "- For multi-file implementations, list the required files before writing code.\n\n"
+
+    "Formatting Rules:\n"
+    "- Format code in fenced Markdown code blocks with an appropriate language tag.\n"
+    "- Use clear and readable formatting for terminal output.\n"
 )
 
 
@@ -63,7 +85,7 @@ def run_chat(
         full_reply = ""
         try:
             if cfg.stream:
-                full_reply = _stream_and_render(client, session.messages, model)
+                full_reply = render_markdown_stream(client.stream_chat(session.messages, model=model))
             else:
                 full_reply = client.chat(session.messages, model=model)
                 console.print(Markdown(full_reply))
@@ -77,18 +99,3 @@ def run_chat(
 
     history_manager.save(session)
     print_info(f"Session saved as '{session.session_id}'. Resume with: ai chat --resume {session.session_id}")
-
-
-def _stream_and_render(client: LLMClient, messages: list[dict[str, str]], model: str) -> str:
-    """Stream tokens live, re-rendering as Markdown for syntax highlighting."""
-    full_text = ""
-    with Live(console=console, refresh_per_second=12, transient=False) as live:
-        try:
-            for chunk in client.stream_chat(messages, model=model):
-                full_text += chunk
-                live.update(Markdown(full_text))
-        except APIClientError:
-            if full_text:
-                print_warning("Stream interrupted; showing partial response.")
-            raise
-    return full_text
