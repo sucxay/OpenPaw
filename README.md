@@ -1,162 +1,496 @@
-# terminal-ai
+# OpenPaw
 
-A lightweight, modular, terminal-based AI coding assistant, in the spirit of
-Claude Code, Gemini CLI, and Aider — built to work against **any
-OpenAI-compatible API endpoint**, including a locally-running
-[FreeLLMAPI](http://localhost:3001/v1) server.
+> Chat. Explain. Configure. Build.
 
-> **Status: Phase 1.** Core CLI, interactive chat, configuration management,
-> model listing/switching, and history are fully implemented. Project
-> review/fix, `explain`, `generate-readme`, `commit`, and `agent` are wired
-> into the CLI as commands but are stubbed for a later phase — see
-> [Roadmap](#roadmap).
+OpenPaw is an open-source AI coding assistant for your terminal, inspired by tools like Claude Code, Gemini CLI, and Aider.
 
-## Features (Phase 1)
+It works with any OpenAI-compatible API endpoint, allowing you to use local or hosted models with a simple and developer-friendly command-line experience.
 
-- **`ai chat`** — interactive, multi-turn, streaming chat with Markdown /
-  syntax-highlighted code rendering, and automatic conversation persistence.
-- **`ai models`** — list models exposed by your backend (name, provider,
-  context length, status).
-- **`ai switch-model`** — interactively (or directly) change the default
-  model.
-- **`ai history`** / **`ai clear-history`** — list, inspect, and wipe saved
-  conversations.
-- **`ai config`** — view and edit API key, base URL, default model,
-  temperature, max tokens, streaming, and theme, either interactively or
-  with `--set key=value`.
-- No hardcoded model names — works with any OpenAI-compatible server.
-- Config and history are stored locally under `~/.terminal-ai/`.
+Whether you're chatting with your favorite model, explaining unfamiliar code, or managing AI configurations, OpenPaw brings powerful AI capabilities directly to your terminal.
+
+> **Current Status:** Phase 1 is complete. Core chat, code explanation, configuration management, model switching, and conversation history are fully implemented. Advanced project analysis and agent capabilities are planned for future releases.
+
+---
+
+## Why OpenPaw?
+
+* Works with any OpenAI-compatible API provider.
+* Supports locally hosted models and custom endpoints.
+* Interactive AI chat with streaming responses.
+* Explain source code files directly from your terminal.
+* Lightweight, modular, and easy to extend.
+* Stores configuration and conversation history locally.
+* Designed for future AI agent capabilities.
+* Beginner-friendly installation and configuration.
+
+---
+
+## Features
+
+OpenPaw currently supports:
+
+* `paw chat` – Interactive multi-turn AI conversations with Markdown and syntax-highlighted code rendering.
+* `paw explain` – Explain source code files directly from your terminal.
+* `paw models` – View all available models exposed by your configured backend.
+* `paw switch-model` – Change your default model interactively or directly.
+* `paw history` – View saved conversations.
+* `paw clear-history` – Delete saved conversation history.
+* `paw config` – Configure API keys, models, themes, and other settings.
+* Automatic conversation persistence.
+* Streaming and non-streaming AI responses.
+* Compatible with any OpenAI-compatible API endpoint.
+
+---
+
+## Requirements
+
+Before installing OpenPaw, make sure you have:
+
+* Python 3.12 or newer
+* An OpenAI-compatible API endpoint (FreeLLMAPI or any compatible provider)
+
+Check your Python version:
+
+```bash
+python3 --version
+```
+
+---
 
 ## Installation
 
-```bash
-cd terminal-ai
-python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+### 1. Clone the Repository
 
-# optional: install the `ai` command on your PATH
+```bash
+git clone https://github.com/sucxay/OpenPaw.git
+cd OpenPaw
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python3 -m venv .venv
+```
+
+### 3. Activate the Virtual Environment
+
+#### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+#### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+### 4. Install the Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Install OpenPaw Locally
+
+```bash
 pip install -e .
 ```
 
-Requires Python 3.12+.
+### 6. Verify the Installation
+
+```bash
+paw --help
+```
+
+If the installation was successful, you should see the list of available OpenPaw commands.
+
+---
+
+## Quick Start
+
+Start chatting with your AI model:
+
+```bash
+paw chat
+```
+
+Explain a source code file:
+
+```bash
+paw explain main.py
+```
+
+View available models:
+
+```bash
+paw models
+```
+
+Configure OpenPaw:
+
+```bash
+paw config
+```
+
+Switch your default model:
+
+```bash
+paw switch-model
+```
+
+View conversation history:
+
+```bash
+paw history
+```
+
+Delete conversation history:
+
+```bash
+paw clear-history
+```
+
+---
 
 ## Configuration
 
-By default the assistant talks to a FreeLLMAPI-style server at
-`http://localhost:3001/v1`. Configure it with:
+By default, OpenPaw is configured to work with a FreeLLMAPI-style server running at:
 
-```bash
-ai config                          # view current config, offers interactive edit
-ai config --set base_url=http://localhost:3001/v1
-ai config --set api_key=sk-...
-ai config --set default_model=my-model
-ai config --set temperature=0.5
-ai config --set max_tokens=4096
-ai config --set stream=true
+```text
+http://localhost:3001/v1
 ```
 
-Every setting can also be provided via environment variable, which takes
-priority over the config file:
+View your current configuration:
 
-| Env var                      | Config field    |
-|-------------------------------|-----------------|
-| `TERMINAL_AI_API_KEY`         | `api_key`       |
-| `TERMINAL_AI_BASE_URL`        | `base_url`      |
-| `TERMINAL_AI_DEFAULT_MODEL`   | `default_model` |
-| `TERMINAL_AI_TEMPERATURE`     | `temperature`   |
-| `TERMINAL_AI_MAX_TOKENS`      | `max_tokens`    |
-| `TERMINAL_AI_STREAM`          | `stream`        |
-| `TERMINAL_AI_THEME`           | `theme`         |
-| `TERMINAL_AI_HOME`            | config/history root directory (default `~/.terminal-ai`) |
+```bash
+paw config
+```
 
-Config is stored as JSON at `~/.terminal-ai/config.json`.
+Update individual settings:
+
+```bash
+paw config --set base_url=http://localhost:3001/v1
+paw config --set api_key=your-api-key
+paw config --set default_model=your-model-name
+paw config --set temperature=0.5
+paw config --set max_tokens=4096
+paw config --set stream=true
+```
+
+---
+
+## Environment Variables
+
+Every configuration option can also be provided through environment variables.
+
+| Environment Variable  | Configuration Field                 |
+| --------------------- | ----------------------------------- |
+| OPENPAW_API_KEY       | api_key                             |
+| OPENPAW_BASE_URL      | base_url                            |
+| OPENPAW_DEFAULT_MODEL | default_model                       |
+| OPENPAW_TEMPERATURE   | temperature                         |
+| OPENPAW_MAX_TOKENS    | max_tokens                          |
+| OPENPAW_STREAM        | stream                              |
+| OPENPAW_THEME         | theme                               |
+| OPENPAW_HOME          | Configuration and history directory |
+
+Environment variables always take priority over values stored in the configuration file.
+
+---
+
+## Configuration Files
+
+OpenPaw stores its configuration locally.
+
+Configuration file:
+
+```text
+~/.openpaw/config.json
+```
+
+Conversation history:
+
+```text
+~/.openpaw/
+```
+
+Your data remains local unless it is explicitly sent to your configured AI provider.
+
+---
 
 ## Usage
 
+### Chat
+
+Start a new AI conversation:
+
 ```bash
-ai chat                       # start a new interactive session
-ai chat --model other-model   # override the model for this session
-ai chat --resume <session_id> # continue a saved conversation
-
-ai models                     # list models from the backend
-ai switch-model               # interactive picker
-ai switch-model my-model      # switch directly
-
-ai history                    # list saved sessions
-ai history <session_id>       # view a session in full
-ai clear-history               # delete all saved sessions (asks to confirm)
-ai clear-history --yes         # skip confirmation
-
-ai help                       # full command reference
+paw chat
 ```
 
-Inside `ai chat`, type `exit`, `quit`, `:q`, or `:wq` to leave — the session
-is saved automatically either way.
+Use a specific model for the current session:
 
-## Project structure
-
+```bash
+paw chat --model your-model-name
 ```
-terminal-ai/
-├── main.py            # Typer CLI entry point — wires up all commands
-├── cli/                # (reserved for future CLI-only helpers)
-├── commands/           # one module per command's logic
+
+Resume a previous conversation:
+
+```bash
+paw chat --resume <session_id>
+```
+
+Exit the chat session using:
+
+```text
+exit
+quit
+:q
+:wq
+```
+
+All conversations are automatically saved.
+
+---
+
+### Explain Code
+
+Explain a source code file:
+
+```bash
+paw explain <file>
+```
+
+Examples:
+
+```bash
+paw explain main.py
+paw explain utils/api_client.py
+paw explain models/model.py
+```
+
+The `paw explain` command is useful for understanding unfamiliar codebases and learning how individual files work.
+
+---
+
+### Models
+
+View all available models:
+
+```bash
+paw models
+```
+
+---
+
+### Switch Models
+
+Switch interactively:
+
+```bash
+paw switch-model
+```
+
+Switch directly:
+
+```bash
+paw switch-model your-model-name
+```
+
+---
+
+### History
+
+List all saved conversations:
+
+```bash
+paw history
+```
+
+View a specific conversation:
+
+```bash
+paw history <session_id>
+```
+
+---
+
+### Clear History
+
+Delete all saved conversations:
+
+```bash
+paw clear-history
+```
+
+Skip the confirmation prompt:
+
+```bash
+paw clear-history --yes
+```
+
+---
+
+### Help
+
+View all available commands and options:
+
+```bash
+paw --help
+```
+
+Or:
+
+```bash
+paw help
+```
+
+---
+
+## Project Structure
+
+```text
+OpenPaw/
+├── main.py
+├── cli/
+├── commands/
 │   ├── chat.py
 │   ├── config_cmd.py
 │   ├── models_cmd.py
 │   └── history_cmd.py
 ├── utils/
-│   ├── api_client.py   # OpenAI-compatible client wrapper (streaming + non-streaming)
-│   └── console.py       # shared Rich console + formatting helpers
+│   ├── api_client.py
+│   └── console.py
 ├── config/
 │   └── config_manager.py
 ├── history/
 │   └── history_manager.py
-├── prompts/            # (reserved for phase-2 system/task prompt templates)
-├── agents/             # (reserved for `ai agent` task planning/execution)
-├── models/              # (reserved for phase-2 model-specific helpers)
-├── tests/               # pytest unit tests
+├── prompts/
+├── agents/
+├── models/
+├── tests/
 ├── requirements.txt
+├── README.md
 └── pyproject.toml
 ```
 
-## Technologies used
+---
 
-- [Typer](https://typer.tiangolo.com/) — CLI framework
-- [Rich](https://rich.readthedocs.io/) — terminal formatting, tables,
-  Markdown/syntax rendering, live-updating streaming output
-- [openai](https://github.com/openai/openai-python) Python SDK, pointed at
-  a custom `base_url` — used purely as an OpenAI-compatible HTTP client,
-  works against FreeLLMAPI or any other compatible server
-- [pytest](https://pytest.org/) — unit tests
+## Technologies Used
 
-## Testing
+OpenPaw is built using:
+
+* Typer
+* Rich
+* OpenAI Python SDK
+* Pytest
+
+These libraries provide a fast, modern, and extensible foundation for building terminal-based AI applications.
+
+---
+
+## Running Tests
+
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
-python3 -m pytest tests/ -v
 ```
 
-15 unit tests cover configuration loading/saving/env-overrides, history
-persistence, and the API client's streaming/non-streaming/error paths
-(using a fake completions client, so no network or live server is needed).
+Run the test suite:
+
+```bash
+pytest tests/ -v
+```
+
+The current test suite covers:
+
+* Configuration management
+* Environment variable overrides
+* Conversation history persistence
+* API client functionality
+* Streaming and non-streaming responses
+* Error handling
+
+---
 
 ## Roadmap
 
-Planned for later phases, per the original project spec:
+The following features are planned for future releases:
 
-- `ai review .` — recursive project scan with a code-quality report, bugs,
-  security/performance issues, and a score out of 10.
-- `ai fix .` — analyze, diff, confirm, and apply fixes across Python, JS,
-  TS, C++, Java, Markdown, and JSON.
-- `ai explain <file>` — code explanation, with a `--beginner` mode.
-- `ai generate-readme` — auto-generate a full README from the project.
-- `ai commit` — read `git diff`, propose a conventional-commit message,
-  confirm, then commit.
-- `ai agent "<task>"` — break a natural-language task into steps and
-  execute them (create/modify files, generate code), confirming before
-  destructive changes.
+### Project Review
 
-These commands are already registered in the CLI (`ai <command> --help`
-works today) and currently print a short notice pointing here; their logic
-lives in `commands/`, `agents/`, and `prompts/` once implemented.
+```bash
+paw review .
+```
+
+* Recursive project scanning.
+* Code quality analysis.
+* Performance and security suggestions.
+* Overall project scoring.
+
+---
+
+### Automatic Fixes
+
+```bash
+paw fix .
+```
+
+* Detect and propose fixes across multiple programming languages.
+* Show diffs before applying changes.
+
+---
+
+### README Generation
+
+```bash
+paw generate-readme
+```
+
+* Automatically generate professional project documentation.
+
+---
+
+### Git Commit Assistant
+
+```bash
+paw commit
+```
+
+* Analyze Git changes.
+* Suggest conventional commit messages.
+* Confirm before committing.
+
+---
+
+### AI Agent Mode
+
+```bash
+paw agent "<task>"
+```
+
+* Break natural language tasks into executable steps.
+* Create or modify files.
+* Generate code.
+* Confirm before performing destructive operations.
+
+---
+
+## Contributing
+
+Contributions are welcome.
+
+If you'd like to improve OpenPaw, feel free to open an issue or submit a pull request.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+Built with Python for developers who love working in the terminal.
